@@ -1,5 +1,5 @@
-% 2/16/25
-% BME345_Project1_Force
+% 3/31/25
+% BME345_Project2
 
 clear
 clc
@@ -31,12 +31,19 @@ r3 = 21*in2m;
 r4 = 19*in2m;
 
 % Link 1 (frame) kinematics
-th1 = -pi/2 - atan(seatLength/seatHeight);
-th2 = Data(:,1);
-om1 = 0;
-alpha1 = 0;
-alpha2 = 0;
+time = Data(:,1);
 F32y = Data(:,2);
+L = length(F32y);
+
+th1 = -pi/2 - atan(seatLength/seatHeight);
+th2 = linspace(pi,(7*pi),L);
+
+w1 = 0;
+w2 = (th2(end)-th2(1))/Data(end,1);
+
+al1 = 0;
+al2 = 0;
+
 
 % Other known variables 
 
@@ -77,137 +84,72 @@ ylimMin = -0.7;
 ylimMax = 0.9;
 Transparancy = 0.3;
 
-%[th3, th4, om3, om4, al3, al4] Guess
-guess = [deg2rad(120), deg2rad(25),1,1,0,0];
+om2vector = ones(1,L) * w2;
 
-% Options for "fsolve". Below are possible inputs, but feel free to
-% disable the display or increase/decrease the iteration count or tol.
-% Understand what each setting does by reading the documention. 
-options = optimoptions('fsolve','Display','final','MaxIter',10000,...
-    'MaxFunEvals',50000,'TolFun',1e-10);
+% Guess in the form [th3 th4 om3 om4 al3 al4] with radians, not degrees
+guess = [pi/4 7*pi/4 -1 1 1 1];
 
-for k= 1:length(th2)
+% Can add other options as shown below. Can suppress output message with
+% 'Display','off', but you may not know if it doesn't converge.
+% Other options include 'MaxIter',MaxFunEvals','TolFun', but you may not
+% need them.
+% Note that you need these options so that you can call fsolve with
+% constant parameters.
+options = optimoptions('fsolve','Display','final');
 
-    current_theta2 = th2(k);
+for k = 1:L
+ans4Bar = fsolve(@fourbar,guess,options,r1,r2,r3,r4,th1,th2(k),om2vector(k),al2);
+th3(k) = ans4Bar(1);
+th4(k) = ans4Bar(2);
+om3(k) = ans4Bar(3);
+om4(k) = ans4Bar(4);
+al3(k) = ans4Bar(5);
+al4(k) = ans4Bar(6);
+guess = ans4Bar;
 
-    % % up to down is when hip torque is 125, down to up is hip torque of 0
-    % if (current_theta2 >= (pi/2)) && (current_theta2 < ((3*pi)/2))
-    %     THip(k) = T_H;
-    % 
-    % elseif (current_theta2 >= ((3*pi)/2)) && (current_theta2 < ((5*pi)/2))
-    %     THip(k) = 0;
-    % 
-    % elseif (current_theta2 >= ((5*pi)/2)) && (current_theta2 < ((7*pi)/2))
-    %     THip(k) = T_H;
-    % end
+% angular to linear acc
+a2x(k) = (- al2 * r2/2 * sin(th2array(k))) - (om2^2) * r2/2 * cos(th2array(k)); 
+a2y(k) = (al2 * r2/2 * cos(th2array(k))) - (om2^2) * r2/2 * sin(th2array(k)); 
 
-answer(k,:) = fsolve(@fourbar,guess,options,r1,r2,r3,r4,th1,current_theta2,om1,alpha2);
+a3x(k) = (2*a2x(k)) + (- al3(k) * r3/2 * sin(th3(k))) - ((om3(k)^2) * r3/2 * cos(th3(k))); 
+a3y(k) = (2*a2y(k)) + (al3(k) * r3/2 * cos(th3(k))) - (om3(k)^2) * (r3/2 * sin(th3(k))); 
 
-guess = answer(k,:);
+a4x(k) = (2*a2x(k)) + 2*((- al3(k) * r3/2 * sin(th3(k))) - (om3(k)^2) * r3/2 * cos(th3(k))) +...
+    (- al4(k) * r4/2 * sin(th4(k))) - (om4(k)^2) * r4/2 * cos(th4(k));
 
-theta3All = answer(:,1);
-theta4All = answer(:,2);
-w3All = answer(:,3);
-w4All = answer(:,4);
-alpha3All = answer(:,5);
-alpha4All = answer(:,6);
+a4y(k) = (2*a2y(k)) + 2*((al3(k) * r3/2 * cos(th3(k))) - (om3(k)^2) * r3/2 * sin(th3(k))) + ...
+    (al4(k) * r4/2 * cos(th4(k))) - ((om4(k)^2) * r4/2 * sin(th4(k)));
 
-
-theta3 = theta3All(k);
-theta4 = theta4All(k);
-w3 = w3All(k);
-w4 = w4All(k);
-alpha3 = alpha3All(k);
-alpha4 = alpha4All(k);
-
-% Acceleration Calculations
-a2x(k,:) = -alpha2*(r2/2)*sin(current_theta2) - ((om1)^2)*(r2/2)*cos(current_theta2);
-a3x(k,:) = -alpha2*(r2)*sin(current_theta2) - ((om1)^2)*(r2)*cos(current_theta2) + (-alpha3*(r3*D3)*sin(theta3) - ((w3)^2)*(r3*D3)*cos(theta3));
-a4x(k,:) = -alpha2*(r2)*sin(current_theta2) - ((om1)^2)*(r2)*cos(current_theta2) + (-alpha3*(r3)*sin(theta3) - ((w3)^2)*(r3)*cos(theta3)) + ...
-    (-alpha4*(r4*D4)*sin(theta4) - ((w4)^2)*(r4*D4)*cos(theta4));
-a2y(k,:) = alpha2*(r2/2)*cos(current_theta2) - (w2^2)*(r2/2)*sin(current_theta2);
-a3y(k,:) = alpha2*(r2)*cos(current_theta2) - (w2^2)*(r2)*sin(current_theta2) + (alpha3*(r3*D3)*cos(theta3) - (w3^2)*(r3*D3)*sin(theta3));
-a4y(k,:) = alpha2*(r2)*cos(current_theta2) - (w2^2)*(r2)*sin(current_theta2) + (alpha3*(r3)*cos(theta3) - (w3^2)*(r3)*sin(theta3))+ ...
-    (alpha4*(r4*D4)*cos(theta4) - (w4^2)*(r4*D4)*sin(theta4));
-
-
-r32x = (r2/2)*cos(current_theta2);
-r32y = (r2/2)*sin(current_theta2);
-r12x = -(r2/2)*cos(current_theta2);
-r12y = -(r2/2)*sin(current_theta2);
-r23x = -r3*D3*cos(theta3);
-r23y = -r3*D3*sin(theta3);
-r43x = r3*P3*cos(theta3);
-r43y = r3*P3*sin(theta3);
-r34x = -r4*D4*cos(theta4);
-r34y = -r4*D4*sin(theta4);
-r14x = r4*P4*cos(theta4);
-r14y = r4*P4*sin(theta4);
-
+% statics portion 
+r12x(k) = r2/2 * cos(th2(k));
+r12y(k) = r2/2 * sin(th2(k));
+r32x(k) = -r2/2 * cos(th2(k));
+r32y(k) = -r2/2 * sin(th2(k));
+r23x(k) = -r3* 0.567 * cos(th3(k));
+r23y(k) = -r3* 0.567 * sin(th3(k));
+r43x(k) = r3* 0.433 *cos(th3(k));
+r43y(k) = r3* 0.433 *sin(th3(k));
+r14x(k) = r4* 0.433 *cos(th4(k));
+r14y(k) = r4* 0.433 *sin(th4(k));
+r34x(k) = -r4 *0.567 *cos(th4(k));
+r34y(k) = -r4* 0.567* sin(th4(k));
 
 % Matrix Calculations
-%[  F32x     F32y     F23x     F23y     F43x     F43y     F34x    F34y      F12x     F12y     F14x     F14y     TP]
-A = [1        0        0        0        0        0        0       0         1        0        0        0       0
-     0        1        0        0        0        0        0       0         0        1        0        0       0
-  -r32y      r32x      0        0        0        0        0       0       -r12y     r12x      0        0       1
+%[  F32x     F23x     F23y     F43x     F43y     F34x    F34y     F12x     F12y     F14x     F14y      T2p     T4h]
+A = [1        0        0        0        0        0        0       1         0        0        0        0       0
+     0        0        1        0        0        0        0       0         1        0        0        0       0
+-r32y./r32x   0        0        0        0        0        0  -r12y./-r32x r12x./-r32x 0       0       1/-r32x  0
+     0        1        0        1        0        0        0       0         0        0        0        0       0
      0        0        1        0        1        0        0       0         0        0        0        0       0
-     0        0        0        1        0        1        0       0         0        0        0        0       0
-     0        0      -r23y     r23x    -r43y     r43x      0       0         0        0        0        0       0
+     0      -r23y     r23x    -r43y     r43x      0        0       0         0        0        0        0       0
+     0        0        0        0        0        1        0       0         0        1        0        0       0
      0        0        0        0        0        0        1       0         0        0        1        0       0
-     0        0        0        0        0        0        0       1         0        0        0        1       0
-     0        0        0        0        0        0     -r34y    r34x        0        0     -r14y      r14x     0
+     0        0        0        0        0     -r34y     r34x      0         0     -r14y      r14x      0       1
+     0        0        0        1        0        1        0       0         0        0        0        0       0 
      0        0        0        0        1        0        1       0         0        0        0        0       0
-     0        0        0        0        0        1        0       1         0        0        0        0       0
-     1        0        1        0        0        0        0       0         0        0        0        0       0
-     0        1        0        1        0        0        0       0         0        0        0        0       0];
+     1        1        0        0        0        0        0       0         0        0        0        0       0 
+    -F32y     0        1        0        0        0       0         0        0        0        0        0       0];
 
-b = [(PedalMass2*a2x(k)),((PedalMass2*a2y(k))-F2g),I2*alpha2,(m3*a3x(k)),((m3*a3y(k))-F3g),I3*alpha3,(m4*a4x(k)),((m4*a4y(k))-F4g),I4*alpha4-THip(k),0,0,0,0]';
+b = [(PedalMass2*a2x(k)),((PedalMass2*a2y(k))-F2g-F32y),I2*al2,(m3*a3x(k)),((m3*a3y(k))-F3g),I3*al3,(m4*a4x(k)),((m4*a4y(k))-F4g),I4*al4,0,0,0,0]';
 
 F(:,k) = A\b;
-
-end 
-% 
-% %% Plotting 
-% 
-% figure(1)
-% subplot(3,1,1)
-% plot(th2,theta3All,'g')
-% xlabel('radians')
-% ylabel('radians')
-% title('\theta_3 and \theta_4 vs. \theta_2')
-% hold on
-% plot(th2,theta4All,'r')
-% legend('\theta_3','\theta_4','Location','eastoutside')
-% hold off
-% 
-% subplot(3,1,2)
-% plot(th2, w3All,'g')
-% xlabel('radians')
-% ylabel('rad/s')
-% title('\omega_3 and \omega_4 vs. \theta_2')
-% hold on
-% plot(th2,w4All,'r')
-% hold off
-% legend('\omega_3','\omega_4','Location','eastoutside')
-% 
-% subplot(3,1,3)
-% plot(th2,alpha3All,'g')
-% xlabel('radians')
-% ylabel('rad/s^2')
-% title('\alpha_3 and \alpha_4 vs. \theta_2')
-% hold on
-% plot(th2, alpha4All,'r')
-% hold off
-% legend('\alpha_3','\alpha_4','Location','eastoutside')
-% 
-% figure(2)
-% plot(th2,THip,'g')
-% xlabel('radians')
-% ylabel('Newtons')
-% title('Hip Torque and Pedal Torque vs. \theta_2')
-% hold on
-% plot(th2,F(13,:),'r')
-% hold off
-% legend('Torque at Hip','Torque at Pedal','Location','southwest')
-% 
-% 
