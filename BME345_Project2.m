@@ -121,6 +121,7 @@ a4y(k) = (2*a2y(k)) + 2*((al3(k) * r3/2 * cos(th3(k))) - (om3(k)^2) * r3/2 * sin
     (al4(k) * r4/2 * cos(th4(k))) - ((w4(k)^2) * r4/2 * sin(th4(k)));
 
 % statics portion 
+One = ones(1,L);
 r12x(k) = r2/2 * cos(th2(k));
 r12y(k) = r2/2 * sin(th2(k));
 r32x(k) = -r2/2 * cos(th2(k));
@@ -138,7 +139,7 @@ r34y(k) = -r4* 0.567* sin(th4(k));
 %[  F32x     F23x     F23y     F43x     F43y     F34x    F34y     F12x     F12y     F14x     F14y      T2p     T4h]
 A = [1        0        0        0        0        0        0       1         0        0        0        0       0
      0        0        1        0        0        0        0       0         1        0        0        0       0
--r32y./r32x   0        0        0        0        0        0  -r12y./-r32x r12x./-r32x 0       0       1/-r32x  0
+-r32y./r32x   0        0        0        0        0        0  -r12y./-r32x r12x./-r32x 0       0     One/-r32x  0
      0        1        0        1        0        0        0       0         0        0        0        0       0
      0        0        1        0        1        0        0       0         0        0        0        0       0
      0      -r23y     r23x    -r43y     r43x      0        0       0         0        0        0        0       0
@@ -148,9 +149,9 @@ A = [1        0        0        0        0        0        0       1         0  
      0        0        0        1        0        1        0       0         0        0        0        0       0 
      0        0        0        0        1        0        1       0         0        0        0        0       0
      1        1        0        0        0        0        0       0         0        0        0        0       0 
-    -F32y     0        1        0        0        0       0         0        0        0        0        0       0];
+    -F32y(k)  0        1        0        0        0       0         0        0        0        0        0       0];
 
-b = [(PedalMass2*a2x(k)),((PedalMass2*a2y(k))-F2g-F32y),I2*al2,(m3*a3x(k)),((m3*a3y(k))-F3g),I3*al3,(m4*a4x(k)),((m4*a4y(k))-F4g),I4*al4,0,0,0,0]';
+b = [(PedalMass2*a2x(k)),((PedalMass2*a2y(k))-F2g-F32y(k)),I2*al2,(m3*a3x(k)),((m3*a3y(k))-F3g),I3*al3,(m4*a4x(k)),((m4*a4y(k))-F4g),I4*al4,0,0,0,0]';
 
 F(:,k) = A\b;
 
@@ -198,4 +199,3 @@ end
 % plot(th2,F(13,:),'r')
 % hold off
 % legend('Torque at Hip','Torque at Pedal','Location','southwest')
-% 
