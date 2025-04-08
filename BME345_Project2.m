@@ -84,9 +84,9 @@ ylimMin = -0.7;
 ylimMax = 0.9;
 Transparancy = 0.3;
 
-om2vector = ones(1,L) * w2;
+w2vector = ones(1,L) * w2;
 
-% Guess in the form [th3 th4 om3 om4 al3 al4] with radians, not degrees
+% Guess in the form [th3 th4 om3 w4 al3 al4] with radians, not degrees
 guess = [pi/4 7*pi/4 -1 1 1 1];
 
 % Can add other options as shown below. Can suppress output message with
@@ -98,27 +98,27 @@ guess = [pi/4 7*pi/4 -1 1 1 1];
 options = optimoptions('fsolve','Display','final');
 
 for k = 1:L
-ans4Bar = fsolve(@fourbar,guess,options,r1,r2,r3,r4,th1,th2(k),om2vector(k),al2);
+ans4Bar = fsolve(@fourbar,guess,options,r1,r2,r3,r4,th1,th2(k),w2vector(k),al2);
 th3(k) = ans4Bar(1);
 th4(k) = ans4Bar(2);
 om3(k) = ans4Bar(3);
-om4(k) = ans4Bar(4);
+w4(k) = ans4Bar(4);
 al3(k) = ans4Bar(5);
 al4(k) = ans4Bar(6);
 guess = ans4Bar;
 
 % angular to linear acc
-a2x(k) = (- al2 * r2/2 * sin(th2array(k))) - (om2^2) * r2/2 * cos(th2array(k)); 
-a2y(k) = (al2 * r2/2 * cos(th2array(k))) - (om2^2) * r2/2 * sin(th2array(k)); 
+a2x(k) = (- al2 * r2/2 * sin(th2(k))) - (w2^2) * r2/2 * cos(th2(k)); 
+a2y(k) = (al2 * r2/2 * cos(th2(k))) - (w2^2) * r2/2 * sin(th2(k)); 
 
 a3x(k) = (2*a2x(k)) + (- al3(k) * r3/2 * sin(th3(k))) - ((om3(k)^2) * r3/2 * cos(th3(k))); 
 a3y(k) = (2*a2y(k)) + (al3(k) * r3/2 * cos(th3(k))) - (om3(k)^2) * (r3/2 * sin(th3(k))); 
 
 a4x(k) = (2*a2x(k)) + 2*((- al3(k) * r3/2 * sin(th3(k))) - (om3(k)^2) * r3/2 * cos(th3(k))) +...
-    (- al4(k) * r4/2 * sin(th4(k))) - (om4(k)^2) * r4/2 * cos(th4(k));
+    (- al4(k) * r4/2 * sin(th4(k))) - (w4(k)^2) * r4/2 * cos(th4(k));
 
 a4y(k) = (2*a2y(k)) + 2*((al3(k) * r3/2 * cos(th3(k))) - (om3(k)^2) * r3/2 * sin(th3(k))) + ...
-    (al4(k) * r4/2 * cos(th4(k))) - ((om4(k)^2) * r4/2 * sin(th4(k)));
+    (al4(k) * r4/2 * cos(th4(k))) - ((w4(k)^2) * r4/2 * sin(th4(k)));
 
 % statics portion 
 r12x(k) = r2/2 * cos(th2(k));
@@ -153,3 +153,49 @@ A = [1        0        0        0        0        0        0       1         0  
 b = [(PedalMass2*a2x(k)),((PedalMass2*a2y(k))-F2g-F32y),I2*al2,(m3*a3x(k)),((m3*a3y(k))-F3g),I3*al3,(m4*a4x(k)),((m4*a4y(k))-F4g),I4*al4,0,0,0,0]';
 
 F(:,k) = A\b;
+
+end 
+% 
+% %% Plotting 
+% 
+% figure(1)
+% subplot(3,1,1)
+% plot(th2,theta3All,'g')
+% xlabel('radians')
+% ylabel('radians')
+% title('\theta_3 and \theta_4 vs. \theta_2')
+% hold on
+% plot(th2,theta4All,'r')
+% legend('\theta_3','\theta_4','Location','eastoutside')
+% hold off
+% 
+% subplot(3,1,2)
+% plot(th2, w3All,'g')
+% xlabel('radians')
+% ylabel('rad/s')
+% title('\omega_3 and \omega_4 vs. \theta_2')
+% hold on
+% plot(th2,w4All,'r')
+% hold off
+% legend('\omega_3','\omega_4','Location','eastoutside')
+% 
+% subplot(3,1,3)
+% plot(th2,alpha3All,'g')
+% xlabel('radians')
+% ylabel('rad/s^2')
+% title('\alpha_3 and \alpha_4 vs. \theta_2')
+% hold on
+% plot(th2, alpha4All,'r')
+% hold off
+% legend('\alpha_3','\alpha_4','Location','eastoutside')
+% 
+% figure(2)
+% plot(th2,THip,'g')
+% xlabel('radians')
+% ylabel('Newtons')
+% title('Hip Torque and Pedal Torque vs. \theta_2')
+% hold on
+% plot(th2,F(13,:),'r')
+% hold off
+% legend('Torque at Hip','Torque at Pedal','Location','southwest')
+% 
