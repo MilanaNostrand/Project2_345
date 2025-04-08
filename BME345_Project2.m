@@ -97,6 +97,8 @@ guess = [pi/4 7*pi/4 -1 1 1 1];
 % constant parameters.
 options = optimoptions('fsolve','Display','final');
 
+One = ones(1, L);
+
 for k = 1:L
 ans4Bar = fsolve(@fourbar,guess,options,r1,r2,r3,r4,th1,th2(k),w2vector(k),al2);
 th3(k) = ans4Bar(1);
@@ -121,7 +123,6 @@ a4y(k) = (2*a2y(k)) + 2*((al3(k) * r3/2 * cos(th3(k))) - (om3(k)^2) * r3/2 * sin
     (al4(k) * r4/2 * cos(th4(k))) - ((w4(k)^2) * r4/2 * sin(th4(k)));
 
 % statics portion 
-One = ones(1,L);
 r12x(k) = r2/2 * cos(th2(k));
 r12y(k) = r2/2 * sin(th2(k));
 r32x(k) = -r2/2 * cos(th2(k));
@@ -134,68 +135,27 @@ r14x(k) = r4* 0.433 *cos(th4(k));
 r14y(k) = r4* 0.433 *sin(th4(k));
 r34x(k) = -r4 *0.567 *cos(th4(k));
 r34y(k) = -r4* 0.567* sin(th4(k));
+Ones(k) = k + 1;
 
 % Matrix Calculations
-%[  F32x     F23x     F23y     F43x     F43y     F34x    F34y     F12x     F12y     F14x     F14y      T2p     T4h]
-A = [1        0        0        0        0        0        0       1         0        0        0        0       0
-     0        0        1        0        0        0        0       0         1        0        0        0       0
--r32y./r32x   0        0        0        0        0        0  -r12y./-r32x r12x./-r32x 0       0     One/-r32x  0
-     0        1        0        1        0        0        0       0         0        0        0        0       0
-     0        0        1        0        1        0        0       0         0        0        0        0       0
-     0      -r23y     r23x    -r43y     r43x      0        0       0         0        0        0        0       0
-     0        0        0        0        0        1        0       0         0        1        0        0       0
-     0        0        0        0        0        0        1       0         0        0        1        0       0
-     0        0        0        0        0     -r34y     r34x      0         0     -r14y      r14x      0       1
-     0        0        0        1        0        1        0       0         0        0        0        0       0 
-     0        0        0        0        1        0        1       0         0        0        0        0       0
-     1        1        0        0        0        0        0       0         0        0        0        0       0 
-    -F32y(k)  0        1        0        0        0       0         0        0        0        0        0       0];
 
-b = [(PedalMass2*a2x(k)),((PedalMass2*a2y(k))-F2g-F32y(k)),I2*al2,(m3*a3x(k)),((m3*a3y(k))-F3g),I3*al3,(m4*a4x(k)),((m4*a4y(k))-F4g),I4*al4,0,0,0,0]';
+
+%[  F32x     F23x     F23y     F43x     F43y     F34x    F34y     F12x     F12y     F14x     F14y      T2p     T4h]
+A = [1        0        0        0        0        0        0       1         0        0        0        0       0;
+     0        0        1        0        0        0        0       0         1        0        0        0       0;
+(-r32y(k)/r32x(k)) 0   0        0        0        0        0  (-r12y(k)/-r32x(k)) (r12x(k)/-r32x(k)) 0   0     (One(k)/-r32x(k)) 0;
+     0        1        0        1        0        0        0       0         0        0        0        0       0;
+     0        0        1        0        1        0        0       0         0        0        0        0       0;
+     0      -r23y(k) r23x(k) -r43y(k)   r43x(k)   0        0       0         0        0        0        0       0;
+     0        0        0        0        0        1        0       0         0        1        0        0       0;
+     0        0        0        0        0        0        1       0         0        0        1        0       0;
+     0        0        0        0        0     -r34y(k)  r34x(k)   0         0     -r14y(k)   r14x(k)   0       1;
+     0        0        0        1        0        1        0       0         0        0        0        0       0;
+     0        0        0        0        1        0        1       0         0        0        0        0       0;
+     1        1        0        0        0        0        0       0         0        0        0        0       0 ;
+     0        0        1        0        0        0        0       0         0        0        0        0       0];
+
+b = [(PedalMass2.*a2x(k)), (((PedalMass2.*a2y(k))-F2g-F32y(k))), (I2.*al2), (m3*a3x(k)), ((m3.*a3y(k))-F3g), (I3.*al3(k)), (m4.*a4x(k)), ((m4.*a4y(k))-F4g), I4.*al4(k), 0, 0, 0, (-F32y(k))]';
+
 
 F(:,k) = A\b;
-
-end 
-% 
-% %% Plotting 
-% 
-% figure(1)
-% subplot(3,1,1)
-% plot(th2,theta3All,'g')
-% xlabel('radians')
-% ylabel('radians')
-% title('\theta_3 and \theta_4 vs. \theta_2')
-% hold on
-% plot(th2,theta4All,'r')
-% legend('\theta_3','\theta_4','Location','eastoutside')
-% hold off
-% 
-% subplot(3,1,2)
-% plot(th2, w3All,'g')
-% xlabel('radians')
-% ylabel('rad/s')
-% title('\omega_3 and \omega_4 vs. \theta_2')
-% hold on
-% plot(th2,w4All,'r')
-% hold off
-% legend('\omega_3','\omega_4','Location','eastoutside')
-% 
-% subplot(3,1,3)
-% plot(th2,alpha3All,'g')
-% xlabel('radians')
-% ylabel('rad/s^2')
-% title('\alpha_3 and \alpha_4 vs. \theta_2')
-% hold on
-% plot(th2, alpha4All,'r')
-% hold off
-% legend('\alpha_3','\alpha_4','Location','eastoutside')
-% 
-% figure(2)
-% plot(th2,THip,'g')
-% xlabel('radians')
-% ylabel('Newtons')
-% title('Hip Torque and Pedal Torque vs. \theta_2')
-% hold on
-% plot(th2,F(13,:),'r')
-% hold off
-% legend('Torque at Hip','Torque at Pedal','Location','southwest')
