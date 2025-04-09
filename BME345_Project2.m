@@ -40,6 +40,7 @@ th2 = linspace(pi,(7*pi),L);
 
 w1 = 0;
 w2 = (th2(end)-th2(1))/Data(end,1);
+w2vector = ones(1,L) * w2;
 
 al1 = 0;
 al2 = 0;
@@ -68,23 +69,6 @@ P3 = 0.433;
 D3 = 0.567;
 P4 = 0.433;
 D4 = 0.567;
-
-% Plot Properties
-r2x = 0;
-r2y = 0;
-FrameRate = 30;
-LineWidth = 2;
-MarkerSize1 = 10;
-MarkerSize2 = 20;
-Arrowsize = 1;
-Arrowlength = 0.0008;
-xlimMin = -0.8;
-xlimMax = 0.8;
-ylimMin = -0.7;
-ylimMax = 0.9;
-Transparancy = 0.3;
-
-w2vector = ones(1,L) * w2;
 
 % Guess in the form [th3 th4 om3 w4 al3 al4] with radians, not degrees
 guess = [pi/4 7*pi/4 -1 1 1 1];
@@ -155,7 +139,46 @@ A = [1        0        0        0        0        0        0       1         0  
      1        1        0        0        0        0        0       0         0        0        0        0       0 ;
      0        0        1        0        0        0        0       0         0        0        0        0       0];
 
-b = [(PedalMass2.*a2x(k)), (((PedalMass2.*a2y(k))-F2g-F32y(k))), (I2.*al2), (m3*a3x(k)), ((m3.*a3y(k))-F3g), (I3.*al3(k)), (m4.*a4x(k)), ((m4.*a4y(k))-F4g), I4.*al4(k), 0, 0, 0, (-F32y(k))]';
+b = [(PedalMass2.*a2x(k)), (((PedalMass2.*a2y(k))-F2g-F32y(k))), (I2.*al2), ...
+    (m3*a3x(k)), ((m3.*a3y(k))-F3g), (I3.*al3(k)), (m4.*a4x(k)), ...
+    ((m4.*a4y(k))-F4g), I4.*al4(k), 0, 0, 0, (-F32y(k))]';
 
 
 F(:,k) = A\b;
+T2p = F(12,:);
+T4h = F(13,:);
+F43x = F(4,:);
+F43y = F(5,:);
+
+% rotation matrix transforing x and y to along and perp lower leg
+R = [cos(th3(k)), sin(th3(k));
+    -sin(th3(k)), cos(th3(k))];
+force_components = R * [F43x; F43y];  
+F_tangent(k) = force_components(1);  
+F_normal(k) = force_components(2); 
+
+
+end 
+
+% Question 3 
+figure(1)
+plot(rad2deg(th2),T2p)
+ylim([(min(T2p)* 3), max(T4h)*1.1]) %changed the y-ax to better show legend
+hold on 
+plot(rad2deg(th2),T4h)
+title('Torque at Pedal and Hip vs. \theta_2')
+xlabel('Degrees')
+ylabel('Torque (N/m)')
+legend('Torque at Pedal','Torque at Hip','Location','northwest')
+
+% Question 4 
+figure(2)
+plot(rad2deg(th2),F_tangent)
+ylim([(min(F_tangent)* 1.1), max(F_normal)*1.7])  % y-ax to fit legend
+hold on 
+plot(rad2deg(th2),F_normal)
+title('Forces at knee Along Lower leg vs.\theta_2')
+xlabel('Degrees')
+ylabel('Forces (N)')
+legend('Tangent Force','Normal Force','Location','northwest')
+
