@@ -5,7 +5,7 @@ clear
 clc
 close all
 
-%% Declarations
+% Declarations
 
 % Import
 Data = csvread("f32y.csv");
