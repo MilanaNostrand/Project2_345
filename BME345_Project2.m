@@ -124,11 +124,10 @@ Ones(k) = k + 1;
 
 % Matrix Calculations
 
-
 %[  F32x     F23x     F23y     F43x     F43y     F34x    F34y     F12x     F12y     F14x     F14y      T2p     T4h]
 A = [1        0        0        0        0        0        0       1         0        0        0        0       0;
-     0        0        1        0        0        0        0       0         1        0        0        0       0;
-(-r32y(k)/r32x(k)) 0   0        0        0        0        0  (-r12y(k)/-r32x(k)) (r12x(k)/-r32x(k)) 0   0     (One(k)/-r32x(k)) 0;
+     0        0        0        0        0        0        0       0         1        0        0        0       0;
+ -r32y(k)     0        0        0        0        0        0  (-r12y(k))  (r12x(k))   0        0        1       0;
      0        1        0        1        0        0        0       0         0        0        0        0       0;
      0        0        1        0        1        0        0       0         0        0        0        0       0;
      0      -r23y(k) r23x(k) -r43y(k)   r43x(k)   0        0       0         0        0        0        0       0;
@@ -140,21 +139,20 @@ A = [1        0        0        0        0        0        0       1         0  
      1        1        0        0        0        0        0       0         0        0        0        0       0 ;
      0        0        1        0        0        0        0       0         0        0        0        0       0];
 
-b = [(PedalMass2.*a2x(k)), (((PedalMass2.*a2y(k))-F2g-F32y(k))), (I2.*al2), ...
-    (m3*a3x(k)), ((m3.*a3y(k))-F3g), (I3.*al3(k)), (m4.*a4x(k)), ...
-    ((m4.*a4y(k))-F4g), I4.*al4(k), 0, 0, 0, (-F32y(k))]';
-
+b = [(PedalMass2.*a2x(k)), (((PedalMass2.*a2y(k))-F2g-F32y(k))), ...
+    (I2.*al2-((r32x(k))*F32y(k))),(m3*a3x(k)), ((m3.*a3y(k))-F3g),(I3.*al3(k)),...
+    (m4.*a4x(k)),((m4.*a4y(k))-F4g), I4.*al4(k), 0, 0, 0, (-F32y(k))]';
 
 F(:,k) = A\b;
 T2p = F(12,:);
 T4h = F(13,:);
-F43x = F(4,:);
-F43y = F(5,:);
+F34x = F(6,:);
+F34y = F(7,:);
 
 % rotation matrix transforing x and y to along and perp lower leg
 R = [cos(th3(k)), sin(th3(k));
     -sin(th3(k)), cos(th3(k))];
-force_components = R * [F43x; F43y];  
+force_components = R * [F34x; F34y];  
 F_tangent(k) = force_components(1);  
 F_normal(k) = force_components(2); 
 
