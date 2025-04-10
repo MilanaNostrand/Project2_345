@@ -208,3 +208,35 @@ xlabel('\theta_2 (degrees)')
 ylabel('Shear Stress (Pa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 ylim([-3e5 3e5])
+
+% Question 5 - Strains in the stem
+E = 113.8e9;         % Young's modulus (Pa)
+nu = 0.34;         % Poisson's ratio
+G = 42.4e9;   % Shear modulus (Pa)
+
+strainN = stressN / E;          
+strainS = stressS / G;           
+minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2));  % ε3
+
+% Plotting
+figure(4)
+subplot(3, 1, 1)
+plot(rad2deg(th2), strainN)
+title('Normal Strain in Stem vs. \theta_2')
+xlabel('\theta_2 (degrees)')
+ylabel('Normal Strain')
+xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+
+subplot(3, 1, 2)
+plot(rad2deg(th2), strainS)
+title('Shear Strain in Stem vs. \theta_2')
+xlabel('\theta_2 (degrees)')
+ylabel('Shear Strain')
+xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+
+subplot(3, 1, 3)
+plot(rad2deg(th2), minPrStrain)
+title('Largest Compressive Principal Strain (\epsilon_3) vs. \theta_2')
+xlabel('\theta_2 (degrees)')
+ylabel('Principal Strain')
+xlim([rad2deg(th2(1)) rad2deg(th2(end))])
