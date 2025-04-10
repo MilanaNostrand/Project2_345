@@ -22,6 +22,7 @@ in2m = 0.0254; % Converts inches to meters
 seatHeight = 15*in2m; % height from crank to seat (m)
 seatLength = 17*in2m; % horizontal distance from crank to seat (m)
 PedalMass2 = 0.5; % pedal mass (kg)
+stemRadius = 0.012; % radius of tibial implant stem (m)
 h2 = 1*in2m; % pedal height (m)
 
 % Dimensions
@@ -84,7 +85,7 @@ options = optimoptions('fsolve','Display','final');
 One = ones(1, L);
 
 for k = 1:L
-ans4Bar = fsolve(@fourbar,guess,options,r1,r2,r3,r4,th1,th2(k),w2vector(k),al2);
+ans4Bar = fsolve(@FourBarSolver_345,guess,options,r1,r2,r3,r4,th1,th2(k),w2vector(k),al2);
 th3(k) = ans4Bar(1);
 th4(k) = ans4Bar(2);
 om3(k) = ans4Bar(3);
@@ -157,13 +158,12 @@ force_components = R * [F43x; F43y];
 F_tangent(k) = force_components(1);  
 F_normal(k) = force_components(2); 
 
-
 end 
 
-% Question 3 
+% Question 2
 figure(1)
 plot(rad2deg(th2),T2p)
-ylim([(min(T2p)* 3), max(T4h)*1.1]) %changed the y-ax to better show legend
+%ylim([(min(T2p)* 3), max(T4h)*1.1]) %changed the y-ax to better show legend
 hold on 
 plot(rad2deg(th2),T4h)
 title('Torque at Pedal and Hip vs. \theta_2')
@@ -171,7 +171,7 @@ xlabel('Degrees')
 ylabel('Torque (N/m)')
 legend('Torque at Pedal','Torque at Hip','Location','northwest')
 
-% Question 4 
+% Question 3
 figure(2)
 plot(rad2deg(th2),F_tangent)
 ylim([(min(F_tangent)* 1.1), max(F_normal)*1.7])  % y-ax to fit legend
@@ -182,3 +182,31 @@ xlabel('Degrees')
 ylabel('Forces (N)')
 legend('Tangent Force','Normal Force','Location','northwest')
 
+% Question 4
+% Calculations
+stressN = F_normal./(pi*(stemRadius^2));
+stressS = F_tangent./(pi*(stemRadius^2));
+minPrStress = (stressN./2) - sqrt(((stressN./2).^2) + (stressS.^2));
+% Graphing
+figure(3)
+subplot(3, 1, 1)
+plot(rad2deg(th2), stressN)
+title('Normal Stress in Stem vs. \theta_2')
+xlabel('\theta_2 (degrees)')
+ylabel('Normal Stress (Pa)')
+xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([-3e5 3e5])
+subplot(3, 1, 2)
+plot(rad2deg(th2), stressS)
+title('Shear Stress in Stem vs. \theta_2')
+xlabel('\theta_2 (degrees)')
+ylabel('Shear Stress (Pa)')
+xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([-3e5 3e5])
+subplot(3, 1, 3)
+plot(rad2deg(th2), minPrStress)
+title('Largest Compressive Principal Stress vs. \theta_2')
+xlabel('\theta_2 (degrees)')
+ylabel('Shear Stress (Pa)')
+xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([-3e5 3e5])
