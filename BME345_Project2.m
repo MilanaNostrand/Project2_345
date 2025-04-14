@@ -98,28 +98,28 @@ guess = ans4Bar;
 a2x(k) = (- al2 * r2/2 * sin(th2(k))) - (w2^2) * r2/2 * cos(th2(k)); 
 a2y(k) = (al2 * r2/2 * cos(th2(k))) - (w2^2) * r2/2 * sin(th2(k)); 
 
-a3x(k) = (2*a2x(k)) + (- al3(k) * r3/2 * sin(th3(k))) - ((om3(k)^2) * r3/2 * cos(th3(k))); 
-a3y(k) = (2*a2y(k)) + (al3(k) * r3/2 * cos(th3(k))) - (om3(k)^2) * (r3/2 * sin(th3(k))); 
+a3x(k) = (2*a2x(k)) + (- al3(k) * r3* D3 * sin(th3(k))) - ((om3(k)^2) * r3* D3* cos(th3(k))); 
+a3y(k) = (2*a2y(k)) + (al3(k) * r3* D3* cos(th3(k))) - (om3(k)^2) * (r3* D3* sin(th3(k))); 
 
-a4x(k) = (2*a2x(k)) + 2*((- al3(k) * r3/2 * sin(th3(k))) - (om3(k)^2) * r3/2 * cos(th3(k))) +...
-    (- al4(k) * r4/2 * sin(th4(k))) - (w4(k)^2) * r4/2 * cos(th4(k));
+a4x(k) = (2*a2x(k)) + 2*((- al3(k) * r3* D3 * sin(th3(k))) - (om3(k)^2) * r3* D3 * cos(th3(k))) +...
+    (- al4(k) * r4* 0.433 * sin(th4(k))) - (w4(k)^2) * r4* 0.433 * cos(th4(k));
 
-a4y(k) = (2*a2y(k)) + 2*((al3(k) * r3/2 * cos(th3(k))) - (om3(k)^2) * r3/2 * sin(th3(k))) + ...
-    (al4(k) * r4/2 * cos(th4(k))) - ((w4(k)^2) * r4/2 * sin(th4(k)));
+a4y(k) = (2*a2y(k)) + 2*((al3(k) * r3* D3 * cos(th3(k))) - (om3(k)^2) * r3* D3 * sin(th3(k))) + ...
+    (al4(k) * r4* D4 * cos(th4(k))) - ((w4(k)^2) * r4* D4 * sin(th4(k)));
 
 % statics portion 
 r12x(k) = r2/2 * cos(th2(k));
 r12y(k) = r2/2 * sin(th2(k));
 r32x(k) = -r2/2 * cos(th2(k));
 r32y(k) = -r2/2 * sin(th2(k));
-r23x(k) = -r3* 0.567 * cos(th3(k));
-r23y(k) = -r3* 0.567 * sin(th3(k));
-r43x(k) = r3* 0.433 *cos(th3(k));
-r43y(k) = r3* 0.433 *sin(th3(k));
-r14x(k) = r4* 0.433 *cos(th4(k));
-r14y(k) = r4* 0.433 *sin(th4(k));
-r34x(k) = -r4 *0.567 *cos(th4(k));
-r34y(k) = -r4* 0.567* sin(th4(k));
+r23x(k) = -r3* D3 * cos(th3(k));
+r23y(k) = -r3* D3 * sin(th3(k));
+r43x(k) = r3* P3 *cos(th3(k));
+r43y(k) = r3* P3 *sin(th3(k));
+r14x(k) = r4* P4 *cos(th4(k));
+r14y(k) = r4* P4 *sin(th4(k));
+r34x(k) = -r4 * D4 *cos(th4(k));
+r34y(k) = -r4* D4 * sin(th4(k));
 Ones(k) = k + 1;
 
 % Matrix Calculations
@@ -146,13 +146,16 @@ b = [(PedalMass2.*a2x(k)), (((PedalMass2.*a2y(k))-F2g-F32y(k))), ...
 F(:,k) = A\b;
 T2p = F(12,:);
 T4h = F(13,:);
-F34x = F(6,:);
-F34y = F(7,:);
+F43x = F(4,:);
+F43y = F(5,:);
 
 % rotation matrix transforing x and y to along and perp lower leg
+F_parallel(k) = F43x(k).*cos(th3(k)) + F43y(k).*sin(th3(k));
+F_perpendicular(k) = -F43x(k).*sin(th3(k)) + F43y(k).*cos(th3(k));
+
 R = [cos(th3(k)), sin(th3(k));
     -sin(th3(k)), cos(th3(k))];
-force_components = R * [F34x; F34y];  
+force_components = R * [F43x; F43y];  
 F_tangent(k) = force_components(1);  
 F_normal(k) = force_components(2); 
 
@@ -174,9 +177,9 @@ legend('Torque at Pedal','Torque at Hip','Location','northwest')
 
 % Question 3
 figure(2)
-plot(rad2deg(th2),F_tangent)
+plot(rad2deg(th2),F_parallel)
 hold on 
-plot(rad2deg(th2),F_normal)
+plot(rad2deg(th2),F_perpendicular)
 title('Forces at knee Along Lower leg vs.\theta_2')
 xlabel('Degrees')
 ylabel('Forces (N)')
