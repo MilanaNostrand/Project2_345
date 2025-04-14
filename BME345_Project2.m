@@ -23,6 +23,8 @@ seatHeight = 15*in2m; % height from crank to seat (m)
 seatLength = 17*in2m; % horizontal distance from crank to seat (m)
 PedalMass2 = 0.5; % pedal mass (kg)
 stemRadius = 0.012; % radius of tibial implant stem (m)
+stemD = linspace(.01,.015,5); % vector of diameter of stem for q6
+stemR = stemD./2; % vecotr of stem radi for q6
 h2 = 1*in2m; % pedal height (m)
 
 % Dimensions
@@ -45,9 +47,6 @@ w2vector = ones(1,L) * w2;
 
 al1 = 0;
 al2 = 0;
-
-
-% Other known variables 
 
 % Mass Values
 
@@ -83,9 +82,10 @@ guess = [pi/4 7*pi/4 -1 1 1 1];
 options = optimoptions('fsolve','Display','final');
 
 One = ones(1, L);
-
+for i = 1:length(stemR)
+   
 for k = 1:L
-ans4Bar = fsolve(@FourBarSolver_345,guess,options,r1,r2,r3,r4,th1,th2(k),w2vector(k),al2);
+ans4Bar = fsolve(@fourbar,guess,options,r1,r2,r3,r4,th1,th2(k),w2vector(k),al2);
 th3(k) = ans4Bar(1);
 th4(k) = ans4Bar(2);
 om3(k) = ans4Bar(3);
@@ -157,11 +157,14 @@ F_tangent(k) = force_components(1);
 F_normal(k) = force_components(2); 
 
 end 
+stressN6(i) = F_normal(i)./(pi*(stemR(i).^2));
+stressS6(i) = F_tangent(i)./(pi*(stemR(i).^2));
+minPrStress6(i) = (stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2));
+end
 
-% Question 2
+% Question 2 plot
 figure(1)
 plot(rad2deg(th2),T2p)
-%ylim([(min(T2p)* 3), max(T4h)*1.1]) %changed the y-ax to better show legend
 hold on 
 plot(rad2deg(th2),T4h)
 title('Torque at Pedal and Hip vs. \theta_2')
@@ -172,7 +175,6 @@ legend('Torque at Pedal','Torque at Hip','Location','northwest')
 % Question 3
 figure(2)
 plot(rad2deg(th2),F_tangent)
-ylim([(min(F_tangent)* 1.1), max(F_normal)*1.7])  % y-ax to fit legend
 hold on 
 plot(rad2deg(th2),F_normal)
 title('Forces at knee Along Lower leg vs.\theta_2')
@@ -185,6 +187,7 @@ legend('Tangent Force','Normal Force','Location','northwest')
 stressN = F_normal./(pi*(stemRadius^2));
 stressS = F_tangent./(pi*(stemRadius^2));
 minPrStress = (stressN./2) - sqrt(((stressN./2).^2) + (stressS.^2));
+
 % Graphing
 figure(3)
 subplot(3, 1, 1)
@@ -240,3 +243,12 @@ title('Largest Compressive Principal Strain (\epsilon_3) vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Principal Strain')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+
+% Q6 plot 
+figure(5)
+plot(stemD,abs(minPrStress6),'ro','LineWidth',3,'MarkerSize',4)
+hold on
+plot(stemD,abs(minPrStress6),'r','LineWidth',2)
+title('largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
+xlabel('Diameter (m)')
+ylabel('Stress (N/m)')
