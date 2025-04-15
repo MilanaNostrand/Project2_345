@@ -230,17 +230,15 @@ xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 % Question 5 - Strains in the stem
 figure(4)
-figure(4)
 subplot(3, 1, 1)
 plot(rad2deg(th2), strainN * 1e6)
 hold on
-plot(rad2deg(th2), AllStrain(1,:) * 1e6,'LineWidth',2)
-plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--','LineWidth',2)
-hold off
+plot(rad2deg(th2), AllStrain(1,:) * 1e6)
+plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--')
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (\mu\epsilon)')
-legend('Normal Strain', 'X Strain', 'Z Strain','Location','southeastoutside')
+legend('Normal Strain', 'X Strain', 'Z Strain')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 subplot(3, 1, 2)
