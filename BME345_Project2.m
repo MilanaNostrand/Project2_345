@@ -273,10 +273,8 @@ legend('Trend Line','0.00625m Radius')
 
 figure(6)
 RTibia = (2.54 *in2m)/2;
-AreaDiff = pi*((-RTibia)^2)
-tibiaDArray = linspace(0,RTibia,length(stemD));
-stemDiff = RTibia - stemD;
-plot(stemD,stemDiff);
-title('Radius of Bone as Stem Radius Increases')
+AreaDiff = pi*((RTibia^2) - (stemD).^2);
+plot(stemD,AreaDiff);
+title('Cross Sectional Area of Bone as Stem Radius Increases')
 xlabel('Radius of Stem (m)')
-ylabel('Radius of Bone (m)')
+ylabel('Cross Sectional Area of Bone (m^2)')
