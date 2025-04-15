@@ -193,7 +193,7 @@ plot(rad2deg(th2),T2p,'LineWidth',2)
 hold on 
 plot(rad2deg(th2),T4h,'LineWidth',2)
 title('Torque at Pedal and Hip vs. \theta_2')
-xlabel('Degrees')
+xlabel('\theta_2 (degrees)')
 ylabel('Torque (N*m)')
 legend('Torque at Pedal','Torque at Hip','Location','northwest')
 
@@ -203,7 +203,7 @@ plot(rad2deg(th2),F_parallel,'LineWidth',2)
 hold on 
 plot(rad2deg(th2),F_perpendicular,'LineWidth',2)
 title('Forces at knee Along Lower leg vs.\theta_2')
-xlabel('Degrees')
+xlabel('\theta_2 (degrees)')
 ylabel('Forces (N)')
 legend('Parallel Force','Perpendicular Force','Location','northwest')
 
