@@ -194,7 +194,7 @@ hold on
 plot(rad2deg(th2),T4h)
 title('Torque at Pedal and Hip vs. \theta_2')
 xlabel('Degrees')
-ylabel('Torque (N/m)')
+ylabel('Torque (N*m)')
 legend('Torque at Pedal','Torque at Hip','Location','southeastoutside')
 
 % Question 3
@@ -230,13 +230,11 @@ xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 % Question 5 - Strains in the stem
 figure(4)
-figure(4)
 subplot(3, 1, 1)
 plot(rad2deg(th2), strainN * 1e6)
 hold on
-plot(rad2deg(th2), AllStrain(1,:) * 1e6,'LineWidth',2)
-plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--','LineWidth',2)
-hold off
+plot(rad2deg(th2), AllStrain(1,:) * 1e6)
+plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--')
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (\mu\epsilon)')
@@ -260,11 +258,19 @@ xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 % Q6 plot 
 midIndex = round((1/2)*length(stemD));
 figure(5)
-plot(stemD,abs(minPrStress6(1,:)),'ro','LineWidth',3,'MarkerSize',4)
+plot(stemD,abs(minPrStress6(1,:)./10e3),'ro-','LineWidth',2,'MarkerSize',4)
 hold on
-plot(stemD,abs(minPrStress6(1,:)),'r','LineWidth',2)
-plot(stemD(midIndex),abs(minPrStress6(midIndex)),'bo','LineWidth',3,'MarkerSize',4)
+plot(stemD(midIndex),abs(minPrStress6(midIndex)./10e3),'bo','LineWidth',2,'MarkerSize',4)
 title('Largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
 xlabel('Diameter (m)')
-ylabel('Stress (kPa)')
-legend('','Trend Line','0.0125 Diameter')
+ylabel('Stress (kN/m)')
+legend('Trend Line','0.0125 Radius')
+
+figure(6)
+DTibia = 2.54 *in2m;
+tibiaDArray = linspace(0,DTibia,length(stemD));
+stemDiff = DTibia - stemD;
+plot(stemD,stemDiff);
+title('Diameter of Bone as Stem Diameter Increases')
+xlabel('Diameter of Stem (m)')
+ylabel('Diameter of Bone (m)')
