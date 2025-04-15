@@ -264,10 +264,13 @@ ylabel('Principal Strain (\mu\epsilon)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 % Q6 plot 
+maxIndex = round((1/2)*length(stemD));
 figure(5)
 plot(stemD,abs(minPrStress6),'ro','LineWidth',3,'MarkerSize',4)
 hold on
 plot(stemD,abs(minPrStress6),'r','LineWidth',2)
+plot(stemD(maxIndex),abs(minPrStress6(maxIndex)),'bo','LineWidth',3,'MarkerSize',4)
 title('largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
 xlabel('Diameter (m)')
 ylabel('Stress (N/m)')
+
