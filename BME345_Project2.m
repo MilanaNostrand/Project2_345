@@ -187,26 +187,26 @@ legend('Tangent Force','Normal Force','Location','northwest')
 
 % Question 4
 % Calculations
-stressN = F_parallel./(pi*(stemRadius^2)) / 1e6;
-stressS = F_perpendicular./(pi*(stemRadius^2)) / 1e6;
-minPrStress = (stressN./2) - sqrt(((stressN./2).^2) + (stressS.^2)) / 1e6;
+stressN = F_parallel./(pi*(stemRadius^2));
+stressS = F_perpendicular./(pi*(stemRadius^2));
+minPrStress = (stressN./2) - sqrt(((stressN./2).^2) + (stressS.^2));
 
 % Graphing
 figure(3)
 subplot(3, 1, 1)
-plot(rad2deg(th2), stressN)
+plot(rad2deg(th2), stressN / 1e6)
 title('Normal Stress in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 subplot(3, 1, 2)
-plot(rad2deg(th2), stressS)
+plot(rad2deg(th2), stressS / 1e6)
 title('Shear Stress in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Shear Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 subplot(3, 1, 3)
-plot(rad2deg(th2), minPrStress)
+plot(rad2deg(th2), minPrStress / 1e6)
 title('Largest Compressive Principal Stress vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Shear Stress (MPa)')
@@ -217,19 +217,19 @@ E = 113.8e9;         % Young's modulus (Pa)
 nu = 0.34;         % Poisson's ratio
 G = 42.4e9;   % Shear modulus (Pa)
 
-strainN = stressN / E * 1e6; 
-strainX = -nu / E * stressN * 1e6;
-strainZ = -nu / E * stressN * 1e6;
-strainS = stressS / G * 1e6;           
-minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2)) * 1e6;  % ε3
+strainN = stressN / E; 
+strainX = -nu / E * stressN;
+strainZ = -nu / E * stressN;
+strainS = stressS / G;           
+minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2));  % ε3
 
 % Plotting
 figure(4)
 subplot(3, 1, 1)
-plot(rad2deg(th2), strainN)
+plot(rad2deg(th2), strainN * 1e6)
 hold on
-plot(rad2deg(th2), strainX)
-plot(rad2deg(th2), strainZ)
+plot(rad2deg(th2), strainX * 1e6)
+plot(rad2deg(th2), strainZ * 1e6)
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (microstrain)')
@@ -237,14 +237,14 @@ legend('Normal Strain', 'X Strain', 'Z Strain')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 subplot(3, 1, 2)
-plot(rad2deg(th2), strainS)
+plot(rad2deg(th2), strainS * 1e6)
 title('Shear Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Shear Strain (microstrain)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 subplot(3, 1, 3)
-plot(rad2deg(th2), minPrStrain)
+plot(rad2deg(th2), minPrStrain * 1e6)
 title('Largest Compressive Principal Strain (\epsilon_3) vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Principal Strain (microstrain)')
