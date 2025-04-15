@@ -184,7 +184,7 @@ prinStrain(:,k) = eig(strainTensor);
 end 
 stressN6(i) = F_parallel(i)./(pi*(stemR(i).^2));
 stressS6(i) = F_perpendicular(i)./(pi*(stemR(i).^2));
-minPrStress6(i) = ((stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2))) ./ (10e3);
+minPrStress6(i) = ((stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2))) ./ (1e3);
 end
 
 % Question 2 plot
@@ -215,18 +215,21 @@ title('Normal Stress in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([min(stressN / 1e6) max((stressN / 1e6)+0.03)])
 subplot(3, 1, 2)
 plot(rad2deg(th2), stressS / 1e6)
 title('Shear Stress in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Shear Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([min(stressS / 1e6) max((stressS / 1e6)+0.005)])
 subplot(3, 1, 3)
 plot(rad2deg(th2), prinStress(1,:) / 1e6)
 title('Largest Compressive Principal Stress vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Shear Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([min(prinStress(1,:) / 1e6) max((prinStress(1,:) / 1e6)+0.03)])
 
 % Question 5 - Strains in the stem
 figure(4)
@@ -240,6 +243,7 @@ xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (\mu\epsilon)')
 legend('Normal Strain', 'X Strain', 'Z Strain','Location','southeastoutside')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([min(AllStrain(1,:) * 1e6) max((AllStrain(1,:) * 1e6)+0.1)])
 
 subplot(3, 1, 2)
 plot(rad2deg(th2), strainS * 1e6)
@@ -247,6 +251,7 @@ title('Shear Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Shear Strain (\mu\epsilon)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([min(strainS * 1e6) max((strainS * 1e6)+0.03)])
 
 subplot(3, 1, 3)
 plot(rad2deg(th2), prinStrain(1,:) * 1e6)
@@ -254,16 +259,17 @@ title('Largest Compressive Principal Strain (\epsilon_3) vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Principal Strain (\mu\epsilon)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
+ylim([min(prinStrain(1,:) * 1e6) (max(prinStrain(1,:) * 1e6)+0.2)])
 
 % Q6 plot 
 midIndex = round((1/2)*length(stemD));
 figure(5)
-plot(stemD,abs(minPrStress6(1,:)./10e3),'ro-','LineWidth',2,'MarkerSize',4)
+plot(stemD,abs(minPrStress6(1,:)),'ro-','LineWidth',2,'MarkerSize',4)
 hold on
-plot(stemD(midIndex),abs(minPrStress6(midIndex)./10e3),'bo','LineWidth',2,'MarkerSize',4)
+plot(stemD(midIndex),abs(minPrStress6(midIndex)),'bo','LineWidth',2,'MarkerSize',4)
 title('Largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
 xlabel('Diameter (m)')
-ylabel('Stress (kN/m)')
+ylabel('Stress (kPa)')
 legend('Trend Line','0.0125 Radius')
 
 figure(6)
