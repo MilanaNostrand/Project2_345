@@ -220,12 +220,12 @@ G = 42.4e9;   % Shear modulus (Pa)
 % Strain matrix
 for k = 1:length(stressN)
 
-StrainMatrix = (1/E)*[1   -nu   -nu   0   0   0;
-              -nu    1    -nu   0   0   0;
-              -nu   -nu    1    0   0   0;
-                0    0     0  2*(1+nu)   0    0;
-                0    0     0    0   2*(1+nu)   0;
-                0    0     0    0   0    2*(1+nu)];
+StrainMatrix = (1/E)*[1    -nu    -nu     0      0      0;
+                     -nu    1     -nu     0      0      0;
+                     -nu   -nu      1     0      0      0;
+                      0      0      0  2*(1+nu)  0      0;
+                      0      0      0     0    2*(1+nu) 0;
+                      0      0      0     0      0    2*(1+nu)];
 
 StressMatrix =[0,stressN(k),0,0,stressS(k),0]'; 
 
@@ -248,7 +248,7 @@ subplot(3, 1, 1)
 plot(rad2deg(th2), strainN * 1e6)
 hold on
 plot(rad2deg(th2), AllStrain(1,:) * 1e6)
-plot(rad2deg(th2), AllStrain(3,:) * 1e6)
+plot(rad2deg(th2), AllStrain(3,:) * 1e6,'--')
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (microstrain)')
