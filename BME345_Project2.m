@@ -22,7 +22,7 @@ in2m = 0.0254; % Converts inches to meters
 seatHeight = 15*in2m; % height from crank to seat (m)
 seatLength = 17*in2m; % horizontal distance from crank to seat (m)
 PedalMass2 = 0.5; % pedal mass (kg)
-stemRadius = 0.0125; % radius of tibial implant stem (m)
+stemRadius = 0.012; % radius of tibial implant stem (m)
 stemD = linspace(.01,.015,5); % vector of diameter of stem for q6
 stemR = stemD./2; % vecotr of stem radi for q6
 h2 = 1*in2m; % pedal height (m)
@@ -69,6 +69,11 @@ P3 = 0.433;
 D3 = 0.567;
 P4 = 0.433;
 D4 = 0.567;
+
+% Material Properties
+E = 113.8e9;         % Young's modulus (Pa)
+nu = 0.34;         % Poisson's ratio
+G = 42.4e9;   % Shear modulus (Pa)
 
 % Guess in the form [th3 th4 om3 w4 al3 al4] with radians, not degrees
 guess = [pi/4 7*pi/4 -1 1 1 1];
@@ -151,18 +156,35 @@ F43y = F(5,:);
 
 % rotation matrix transforing x and y to along and perp lower leg
 F_parallel(k) = F43x(k).*cos(th3(k)) + F43y(k).*sin(th3(k));
-F_perpendicular(k) = -F43x(k).*sin(th3(k)) + F43y(k).*cos(th3(k));
+F_perpendicular(k) = -F43x(k).*sin(th3(k)) + F43y(k).*cos(th3(k)); 
 
-R = [cos(th3(k)), sin(th3(k));
-    -sin(th3(k)), cos(th3(k))];
-force_components = R * [F43x; F43y];  
-F_tangent(k) = force_components(1);  
-F_normal(k) = force_components(2); 
+stressN(k) = F_parallel(k)./(pi*(stemRadius^2));
+stressS(k) = F_perpendicular(k)./(pi*(stemRadius^2));
+stressX(k) = 0;
+
+stressTensor = [stressX(k) stressS(k); stressS(k) stressN(k)];
+prinStress(:,k) = eig(stressTensor);
+
+% Strain matrix
+StrainMatrix = (1/E)*[1    -nu    -nu     0      0      0;
+                     -nu    1     -nu     0      0      0;
+                     -nu   -nu      1     0      0      0;
+                      0      0      0  2*(1+nu)  0      0;
+                      0      0      0     0    2*(1+nu) 0;
+                      0      0      0     0      0    2*(1+nu)];
+
+StressMatrix =[0,stressN(k),0,0,stressS(k),0]'; 
+
+AllStrain(:,k) = StrainMatrix * StressMatrix;
+strainN = AllStrain(2,:);
+strainS = AllStrain(5,:);
+strainTensor = [stressX(k)/E stressS(k)/G; stressS(k)/G stressN(k)/E];
+prinStrain(:,k) = eig(strainTensor);
 
 end 
 stressN6(i) = F_parallel(i)./(pi*(stemR(i).^2));
 stressS6(i) = F_perpendicular(i)./(pi*(stemR(i).^2));
-minPrStress6(i) = ((stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2))) ./ (10e3);
+minPrStress6(i) = (stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2));
 end
 
 % Question 2 plot
@@ -175,7 +197,7 @@ xlabel('Degrees')
 ylabel('Torque (N/m)')
 legend('Torque at Pedal','Torque at Hip','Location','northwest')
 
-% Question 3 Plot
+% Question 3
 figure(2)
 plot(rad2deg(th2),F_parallel)
 hold on 
@@ -183,15 +205,9 @@ plot(rad2deg(th2),F_perpendicular)
 title('Forces at knee Along Lower leg vs.\theta_2')
 xlabel('Degrees')
 ylabel('Forces (N)')
-legend('Tangent Force','Normal Force','Location','northwest')
+legend('Parallel Force','Perpendicular Force','Location','northwest')
 
 % Question 4
-% Calculations
-stressN = F_parallel./(pi*(stemRadius^2));
-stressS = F_perpendicular./(pi*(stemRadius^2));
-minPrStress = (stressN./2) - sqrt(((stressN./2).^2) + (stressS.^2));
-
-% Question 4 Plot
 figure(3)
 subplot(3, 1, 1)
 plot(rad2deg(th2), stressN / 1e6)
@@ -206,70 +222,44 @@ xlabel('\theta_2 (degrees)')
 ylabel('Shear Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 subplot(3, 1, 3)
-plot(rad2deg(th2), minPrStress / 1e6)
+plot(rad2deg(th2), prinStress(1,:) / 1e6)
 title('Largest Compressive Principal Stress vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Principle Stress (MPa)')
+ylabel('Shear Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 % Question 5 - Strains in the stem
-E = 113.8e9;         % Young's modulus (Pa)
-nu = 0.34;         % Poisson's ratio
-G = 42.4e9;   % Shear modulus (Pa)
-
-% Strain matrix
-for k = 1:length(stressN)
-
-StrainMatrix = (1/E)*[1    -nu    -nu     0      0      0;
-                     -nu    1     -nu     0      0      0;
-                     -nu   -nu      1     0      0      0;
-                      0      0      0  2*(1+nu)  0      0;
-                      0      0      0     0    2*(1+nu) 0;
-                      0      0      0     0      0    2*(1+nu)];
-
-StressMatrix =[0,stressN(k),0,0,stressS(k),0]'; 
-
-AllStrain(:,k) = StrainMatrix * StressMatrix;
-end
-
-strainN = AllStrain(2,:);
-strainS = AllStrain(5,:);
-minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2));  % ε3
-
-% Plotting
 figure(4)
 subplot(3, 1, 1)
 plot(rad2deg(th2), strainN * 1e6)
 hold on
-plot(rad2deg(th2), AllStrain(1,:) * 1e6,'LineWidth',2)
-plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--','LineWidth',2)
+plot(rad2deg(th2), AllStrain(1,:) * 1e6)
+plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--')
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Normal Strain (\mu\epsilon)')
-legend('Normal Strain', 'X Strain', 'Z Strain','Location','southeastoutside')
+ylabel('Normal Strain (microstrain)')
+legend('Normal Strain', 'X Strain', 'Z Strain')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 subplot(3, 1, 2)
 plot(rad2deg(th2), strainS * 1e6)
 title('Shear Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Shear Strain (\mu\epsilon)')
+ylabel('Shear Strain (microstrain)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 subplot(3, 1, 3)
-plot(rad2deg(th2), minPrStrain * 1e6)
+plot(rad2deg(th2), prinStrain(1,:) * 1e6)
 title('Largest Compressive Principal Strain (\epsilon_3) vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Principal Strain (\mu\epsilon)')
+ylabel('Principal Strain (microstrain)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 % Q6 plot 
-midIndex = round((1/2)*length(stemD));
 figure(5)
 plot(stemD,abs(minPrStress6),'ro','LineWidth',3,'MarkerSize',4)
 hold on
 plot(stemD,abs(minPrStress6),'r','LineWidth',2)
-plot(stemD(midIndex),abs(minPrStress6(midIndex)),'bo','LineWidth',3,'MarkerSize',4)
-title('Largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
+title('largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
 xlabel('Diameter (m)')
-ylabel('Stress (kN/m)')
+ylabel('Stress (N/m)')
