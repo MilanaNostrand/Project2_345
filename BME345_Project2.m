@@ -22,8 +22,8 @@ in2m = 0.0254; % Converts inches to meters
 seatHeight = 15*in2m; % height from crank to seat (m)
 seatLength = 17*in2m; % horizontal distance from crank to seat (m)
 PedalMass2 = 0.5; % pedal mass (kg)
-stemRadius = 0.00625 * 1e3; % radius of tibial implant stem (m)
-stemD = linspace(.005*1e3,.0075*1e3,5); % vector of diameter of stem for q6
+stemRadius = 0.00625; % radius of tibial implant stem (m)
+stemD = linspace(.005,.0075,5); % vector of diameter of stem for q6
 stemR = stemD./2; % vecotr of stem radi for q6
 h2 = 1*in2m; % pedal height (m)
 
@@ -184,7 +184,7 @@ prinStrain(:,k) = eig(strainTensor);
 end 
 stressN6(i) = F_parallel(i)./(pi*(stemR(i).^2));
 stressS6(i) = F_perpendicular(i)./(pi*(stemR(i).^2));
-minPrStress6(i) = ((stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2)));
+minPrStress6(i) = ((stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2))) * 1e3;
 end
 
 % Question 2 plot
@@ -267,16 +267,16 @@ figure(5)
 plot(stemD,abs(minPrStress6(1,:)),'ro-','LineWidth',2,'MarkerSize',4)
 hold on
 plot(stemD(midIndex),abs(minPrStress6(midIndex)),'bo','LineWidth',2,'MarkerSize',4)
-title('Largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
-xlabel('Radius (mm)')
-ylabel('Stress (Pa)')
-legend('Trend Line','0.0125 Radius')
+title('Largest Compressive Stress Magnitude on Knee vs. Radius of Stem')
+xlabel('Radius (m)')
+ylabel('Stress (kPa)')
+legend('Trend Line','0.00625m Radius')
 
 figure(6)
 DTibia = (2.54 *in2m)*1e3;
 tibiaDArray = linspace(0,DTibia,length(stemD));
 stemDiff = DTibia - stemD;
 plot(stemD,stemDiff);
-title('Diameter of Bone as Stem Diameter Increases')
-xlabel('Radius of Stem (mm)')
-ylabel('Radius of Bone (mm)')
+title('Radius of Bone as Stem Radius Increases')
+xlabel('Radius of Stem (m)')
+ylabel('Radius of Bone (m)')
