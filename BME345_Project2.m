@@ -175,7 +175,7 @@ xlabel('Degrees')
 ylabel('Torque (N/m)')
 legend('Torque at Pedal','Torque at Hip','Location','northwest')
 
-% Question 3
+% Question 3 Plot
 figure(2)
 plot(rad2deg(th2),F_parallel)
 hold on 
@@ -191,7 +191,7 @@ stressN = F_parallel./(pi*(stemRadius^2));
 stressS = F_perpendicular./(pi*(stemRadius^2));
 minPrStress = (stressN./2) - sqrt(((stressN./2).^2) + (stressS.^2));
 
-% Graphing
+% Question 4 Plot
 figure(3)
 subplot(3, 1, 1)
 plot(rad2deg(th2), stressN / 1e6)
@@ -236,19 +236,13 @@ strainN = AllStrain(2,:);
 strainS = AllStrain(5,:);
 minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2));  % ε3
 
-% strainN = stressN / E; 
-% strainX = -nu / E * stressN;
-% strainZ = -nu / E * stressN;
-% strainS = stressS / G;           
-% minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2));  % ε3
-
 % Plotting
 figure(4)
 subplot(3, 1, 1)
 plot(rad2deg(th2), strainN * 1e6)
 hold on
-plot(rad2deg(th2), AllStrain(1,:) * 1e6)
-plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--')
+plot(rad2deg(th2), AllStrain(1,:) * 1e6,'LineWidth',2)
+plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--','LineWidth',2)
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (microstrain)')
