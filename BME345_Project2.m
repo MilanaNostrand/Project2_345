@@ -273,7 +273,7 @@ ylabel('Stress (MPa)')
 legend('Trend Line','0.00625m Radius')
 
 figure(6)
-DTibia = (2.54 *in2m)*1e3;
+DTibia = (2.54 *in2m);
 tibiaDArray = linspace(0,DTibia,length(stemD));
 stemDiff = DTibia - stemD;
 plot(stemD,stemDiff);
