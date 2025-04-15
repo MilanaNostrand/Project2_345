@@ -248,7 +248,7 @@ subplot(3, 1, 1)
 plot(rad2deg(th2), strainN * 1e6)
 hold on
 plot(rad2deg(th2), AllStrain(1,:) * 1e6)
-plot(rad2deg(th2), AllStrain(3,:) * 1e6,'--')
+plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--')
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (microstrain)')
