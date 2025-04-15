@@ -50,7 +50,6 @@ al2 = 0;
 
 % Mass Values
 
-PedalMass2 = 0.87;
 m3 = mass * 0.0465;
 m4 = mass * 0.1;
 
