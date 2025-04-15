@@ -266,3 +266,14 @@ title('Largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
 xlabel('Diameter (m)')
 ylabel('Stress (kN/m)')
 legend('','Trend Line','0.0125 Radius')
+
+figure(6)
+DTibia = 2.54 *in2m;
+tibiaDArray = linspace(0,DTibia,length(stemD));
+stemDiff = DTibia - stemD;
+plot(stemD,stemDiff);
+title('Diameter of Bone as Stem Diameter Increases')
+xlabel('Diameter of Stem (m)')
+ylabel('Diameter of Bone (m)')
+
+
