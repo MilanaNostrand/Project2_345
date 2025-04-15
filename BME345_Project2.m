@@ -252,7 +252,7 @@ plot(rad2deg(th2), AllStrain(3,:) * 1e6,'g--')
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (microstrain)')
-legend('Normal Strain', 'X Strain', 'Z Strain')
+legend('Normal Strain', 'X Strain', 'Z Strain','Location','southeastoutside')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 subplot(3, 1, 2)
