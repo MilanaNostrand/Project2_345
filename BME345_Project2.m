@@ -194,7 +194,7 @@ hold on
 plot(rad2deg(th2),T4h)
 title('Torque at Pedal and Hip vs. \theta_2')
 xlabel('Degrees')
-ylabel('Torque (N/m)')
+ylabel('Torque (N*m)')
 legend('Torque at Pedal','Torque at Hip','Location','northwest')
 
 % Question 3
