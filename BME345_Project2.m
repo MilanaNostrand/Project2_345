@@ -22,7 +22,7 @@ in2m = 0.0254; % Converts inches to meters
 seatHeight = 15*in2m; % height from crank to seat (m)
 seatLength = 17*in2m; % horizontal distance from crank to seat (m)
 PedalMass2 = 0.5; % pedal mass (kg)
-stemRadius = 0.012; % radius of tibial implant stem (m)
+stemRadius = 0.0125; % radius of tibial implant stem (m)
 stemD = linspace(.01,.015,5); % vector of diameter of stem for q6
 stemR = stemD./2; % vecotr of stem radi for q6
 h2 = 1*in2m; % pedal height (m)
@@ -162,7 +162,7 @@ F_normal(k) = force_components(2);
 end 
 stressN6(i) = F_parallel(i)./(pi*(stemR(i).^2));
 stressS6(i) = F_perpendicular(i)./(pi*(stemR(i).^2));
-minPrStress6(i) = (stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2));
+minPrStress6(i) = ((stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2))) ./ (10e3);
 end
 
 % Question 2 plot
@@ -209,7 +209,7 @@ subplot(3, 1, 3)
 plot(rad2deg(th2), minPrStress / 1e6)
 title('Largest Compressive Principal Stress vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Shear Stress (MPa)')
+ylabel('Principle Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 % Question 5 - Strains in the stem
@@ -270,7 +270,6 @@ plot(stemD,abs(minPrStress6),'ro','LineWidth',3,'MarkerSize',4)
 hold on
 plot(stemD,abs(minPrStress6),'r','LineWidth',2)
 plot(stemD(midIndex),abs(minPrStress6(midIndex)),'bo','LineWidth',3,'MarkerSize',4)
-title('largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
+title('Largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
 xlabel('Diameter (m)')
-ylabel('Stress (N/m)')
-
+ylabel('Stress (kN/m)')
