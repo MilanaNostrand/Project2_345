@@ -160,8 +160,8 @@ F_tangent(k) = force_components(1);
 F_normal(k) = force_components(2); 
 
 end 
-stressN6(i) = F_normal(i)./(pi*(stemR(i).^2));
-stressS6(i) = F_tangent(i)./(pi*(stemR(i).^2));
+stressN6(i) = F_parallel(i)./(pi*(stemR(i).^2));
+stressS6(i) = F_perpendicular(i)./(pi*(stemR(i).^2));
 minPrStress6(i) = (stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2));
 end
 
@@ -187,9 +187,9 @@ legend('Tangent Force','Normal Force','Location','northwest')
 
 % Question 4
 % Calculations
-stressN = F_normal./(pi*(stemRadius^2));
-stressS = F_tangent./(pi*(stemRadius^2));
-minPrStress = (stressN./2) - sqrt(((stressN./2).^2) + (stressS.^2));
+stressN = F_parallel./(pi*(stemRadius^2)) / 1e6;
+stressS = F_perpendicular./(pi*(stemRadius^2)) / 1e6;
+minPrStress = (stressN./2) - sqrt(((stressN./2).^2) + (stressS.^2)) / 1e6;
 
 % Graphing
 figure(3)
@@ -197,54 +197,57 @@ subplot(3, 1, 1)
 plot(rad2deg(th2), stressN)
 title('Normal Stress in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Normal Stress (Pa)')
+ylabel('Normal Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
-ylim([-3e5 3e5])
 subplot(3, 1, 2)
 plot(rad2deg(th2), stressS)
 title('Shear Stress in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Shear Stress (Pa)')
+ylabel('Shear Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
-ylim([-3e5 3e5])
 subplot(3, 1, 3)
 plot(rad2deg(th2), minPrStress)
 title('Largest Compressive Principal Stress vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Shear Stress (Pa)')
+ylabel('Shear Stress (MPa)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
-ylim([-3e5 3e5])
 
 % Question 5 - Strains in the stem
 E = 113.8e9;         % Young's modulus (Pa)
 nu = 0.34;         % Poisson's ratio
 G = 42.4e9;   % Shear modulus (Pa)
 
-strainN = stressN / E;          
-strainS = stressS / G;           
-minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2));  % ε3
+strainN = stressN / E * 1e6; 
+strainX = -nu / E * stressN * 1e6;
+strainZ = -nu / E * stressN * 1e6;
+strainS = stressS / G * 1e6;           
+minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2)) * 1e6;  % ε3
 
 % Plotting
 figure(4)
 subplot(3, 1, 1)
 plot(rad2deg(th2), strainN)
+hold on
+plot(rad2deg(th2), strainX)
+plot(rad2deg(th2), strainZ)
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Normal Strain')
+ylabel('Normal Strain (microstrain)')
+legend('Normal Strain', 'X Strain', 'Z Strain')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 subplot(3, 1, 2)
 plot(rad2deg(th2), strainS)
 title('Shear Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Shear Strain')
+ylabel('Shear Strain (microstrain)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 subplot(3, 1, 3)
 plot(rad2deg(th2), minPrStrain)
 title('Largest Compressive Principal Strain (\epsilon_3) vs. \theta_2')
 xlabel('\theta_2 (degrees)')
-ylabel('Principal Strain')
+ylabel('Principal Strain (microstrain)')
 xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 
 % Q6 plot 
