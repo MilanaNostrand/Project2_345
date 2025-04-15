@@ -24,7 +24,6 @@ seatLength = 17*in2m; % horizontal distance from crank to seat (m)
 PedalMass2 = 0.5; % pedal mass (kg)
 stemRadius = 0.00625; % radius of tibial implant stem (m)
 stemD = linspace(.005,.0075,5); % vector of diameter of stem for q6
-stemR = stemD./2; % vecotr of stem radi for q6
 h2 = 1*in2m; % pedal height (m)
 
 % Dimensions
@@ -87,7 +86,7 @@ guess = [pi/4 7*pi/4 -1 1 1 1];
 options = optimoptions('fsolve','Display','final');
 
 One = ones(1, L);
-for i = 1:length(stemR)
+for i = 1:length(stemD)
    
 for k = 1:L
 ans4Bar = fsolve(@fourbar,guess,options,r1,r2,r3,r4,th1,th2(k),w2vector(k),al2);
@@ -182,8 +181,8 @@ strainTensor = [stressX(k)/E stressS(k)/G; stressS(k)/G stressN(k)/E];
 prinStrain(:,k) = eig(strainTensor);
 
 end 
-stressN6(i) = F_parallel(i)./(pi*(stemR(i).^2));
-stressS6(i) = F_perpendicular(i)./(pi*(stemR(i).^2));
+stressN6(i) = F_parallel(i)./(pi*(stemD(i).^2));
+stressS6(i) = F_perpendicular(i)./(pi*(stemD(i).^2));
 minPrStress6(i) = ((stressN6(i)./2) - sqrt(((stressN6(i)./2).^2) + (stressS6(i).^2))) ./ 1e6;
 end
 
@@ -273,9 +272,10 @@ ylabel('Stress (MPa)')
 legend('Trend Line','0.00625m Radius')
 
 figure(6)
-DTibia = (2.54 *in2m);
-tibiaDArray = linspace(0,DTibia,length(stemD));
-stemDiff = DTibia - stemD;
+RTibia = (2.54 *in2m)/2;
+AreaDiff = pi*((-RTibia)^2)
+tibiaDArray = linspace(0,RTibia,length(stemD));
+stemDiff = RTibia - stemD;
 plot(stemD,stemDiff);
 title('Radius of Bone as Stem Radius Increases')
 xlabel('Radius of Stem (m)')
