@@ -22,7 +22,7 @@ in2m = 0.0254; % Converts inches to meters
 seatHeight = 15*in2m; % height from crank to seat (m)
 seatLength = 17*in2m; % horizontal distance from crank to seat (m)
 PedalMass2 = 0.5; % pedal mass (kg)
-stemRadius = 0.012; % radius of tibial implant stem (m)
+stemRadius = 0.0125; % radius of tibial implant stem (m)
 stemD = linspace(.01,.015,5); % vector of diameter of stem for q6
 stemR = stemD./2; % vecotr of stem radi for q6
 h2 = 1*in2m; % pedal height (m)
@@ -258,14 +258,13 @@ xlim([rad2deg(th2(1)) rad2deg(th2(end))])
 % Q6 plot 
 midIndex = round((1/2)*length(stemD));
 figure(5)
-plot(stemD,abs(minPrStress6(1,:)),'ro','LineWidth',3,'MarkerSize',4)
+plot(stemD,abs(minPrStress6(1,:)./10e3),'ro-','LineWidth',2,'MarkerSize',4)
 hold on
-plot(stemD,abs(minPrStress6(1,:)),'r','LineWidth',2)
-plot(stemD(midIndex),abs(minPrStress6(midIndex)),'bo','LineWidth',3,'MarkerSize',4)
+plot(stemD(midIndex),abs(minPrStress6(midIndex)./10e3),'bo','LineWidth',2,'MarkerSize',4)
 title('Largest Compressive Stress Magnitude on Knee vs. Diameter of Stem')
 xlabel('Diameter (m)')
 ylabel('Stress (kN/m)')
-legend('','Trend Line','0.0125 Radius')
+legend('Trend Line','0.0125 Radius')
 
 figure(6)
 DTibia = 2.54 *in2m;
