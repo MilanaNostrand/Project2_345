@@ -217,19 +217,38 @@ E = 113.8e9;         % Young's modulus (Pa)
 nu = 0.34;         % Poisson's ratio
 G = 42.4e9;   % Shear modulus (Pa)
 
-strainN = stressN / E; 
-strainX = -nu / E * stressN;
-strainZ = -nu / E * stressN;
-strainS = stressS / G;           
+% Strain matrix
+for k = 1:length(stressN)
+
+StrainMatrix = (1/E)*[1   -nu   -nu   0   0   0;
+              -nu    1    -nu   0   0   0;
+              -nu   -nu    1    0   0   0;
+                0    0     0  2*(1+nu)   0    0;
+                0    0     0    0   2*(1+nu)   0;
+                0    0     0    0   0    2*(1+nu)];
+
+StressMatrix =[0,stressN(k),0,0,stressS(k),0]'; 
+
+AllStrain(:,k) = StrainMatrix * StressMatrix;
+end
+
+strainN = AllStrain(2,:);
+strainS = AllStrain(5,:);
 minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2));  % ε3
+
+% strainN = stressN / E; 
+% strainX = -nu / E * stressN;
+% strainZ = -nu / E * stressN;
+% strainS = stressS / G;           
+% minPrStrain = (strainN./2) - sqrt(((strainN./2).^2) + (strainS.^2));  % ε3
 
 % Plotting
 figure(4)
 subplot(3, 1, 1)
 plot(rad2deg(th2), strainN * 1e6)
 hold on
-plot(rad2deg(th2), strainX * 1e6)
-plot(rad2deg(th2), strainZ * 1e6)
+plot(rad2deg(th2), strainS * 1e6)
+plot(rad2deg(th2), minPrStrain * 1e6)
 title('Normal Strain in Stem vs. \theta_2')
 xlabel('\theta_2 (degrees)')
 ylabel('Normal Strain (microstrain)')
